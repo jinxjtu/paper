@@ -1,0 +1,109 @@
+
+A=load('st');
+x=A(:,1);y=A(:,2);z=A(:,3);
+blade0=load('blade0');
+blade00=load('blade1');
+outlier=load('outskirt');
+
+%方法1
+% 
+% indexOutside=~(inpolygon(x,y,blade0(:,1),blade0(:,2))|inpolygon(x,y,blade00(:,1),blade00(:,2)));
+% xOutside=x(indexOutside);
+% yOutside=y(indexOutside);
+% zOutside=z(indexOutside);
+% xgv=-40:1:210;
+% ygv=-148:1:184;
+% [xi, yi]=meshgrid(xgv,ygv);
+% F=scatteredInterpolant(xOutside,yOutside,zOutside,'natural','linear');
+% zi=F(xi,yi);
+% zi(inpolygon(xi,yi,blade0(:,1),blade0(:,2)))=NaN;
+% zi(inpolygon(xi,yi,blade00(:,1),blade00(:,2)))=NaN;
+% hold on
+% plot(blade0(:,1),blade0(:,2),'k')
+% hold on
+% plot(blade00(:,1),blade00(:,2),'k')
+
+
+
+
+%method2
+[X,Y,Z]=griddata(x,y,z,linspace(-40,210)',linspace(-148,184),'v4');%插值
+Z(inpolygon(X,Y,blade0(:,1),blade0(:,2)))=NaN;
+Z(inpolygon(X,Y,blade00(:,1),blade00(:,2)))=NaN;
+Z(~inpolygon(X,Y,outlier(:,1),outlier(:,2)))=NaN;
+
+% pcolor(X,Y,Z);
+% shading interp%伪彩色图
+% f = figure;
+
+map = [0 0 1
+    0 102/255 1
+    0 204/255 1
+    0 1 204/255
+    0 1 102/255
+    0 1 0
+    102/255 1 0
+    204/255 1 0
+    1 204/255 0
+    1 102/255 0
+    1 0 0];
+
+colormap(map);
+contourf(X,Y,Z,'LevelList',[1.5 2 2.5 3 3.5 4 4.5 5 5.5 6],'ShowText','off') %等高线图
+
+%% contour
+az = 0;
+el = 90;
+axisrange=[-40 210 -148 184];
+% figure
+% contourf(xi,yi,zi);
+% shading flat
+
+extra_axis_options = sprintf('axis equal image, colormap access=piecewise constant, colorbar sampled, colorbar style={samples=%d}',contour_lvls+1);
+limit=6.5;
+contour_lvls=10;
+caxis([1 limit])
+axis(axisrange)
+shading flat
+colorbar('Ticks',[1.5,2,2.5,3,3.5,4, 4.5,5,5.5,6],...
+         'TickLabels',{'1.5','2','2.5','3','3.5','4','4.5','5','5.5','6'})
+
+axis square
+view(az, el);
+xlabel('x/Cax')
+ylabel('y/Cax')
+% hold on
+% x1=[];
+% pp1=csape(blade0(:,1),blade0(:,2),'second');
+% Y=ppval(pp1,)
+% plot(pp1,'k')
+hold on
+plot(blade0(:,1),blade0(:,2),'k','LineWidth',1.5)
+plot(blade00(:,1),blade00(:,2),'k','LineWidth',1.5)
+%%% contour
+% az = 0;
+% el = 90;
+% axisrange=[-40 210 -148 184];
+% figure
+% surf(xi,yi,zi);
+% contour(xi,yi,zi);
+% contour_lvls=6;
+% extra_axis_options = sprintf('axis equal image, colormap access=piecewise constant, colorbar sampled, colorbar style={samples=%d}',contour_lvls+1);
+% limit=6.25;
+% contour_lvls=10;
+% caxis([1.25 limit])
+% axis(axisrange)
+% shading flat
+% colorbar
+% colormap(hsv(contour_lvls))
+% axis square
+% view(az, el);
+% xlabel('x/Cax')
+% ylabel('y/Cax')
+
+% z(inpolygon(x,y,blade1(:,1),blade1(:,2)))=NaN;
+% z(inpolygon(x,y,blade2(:,1),blade2(:,2)))=NaN;
+% scatter(x,y,5,z)%散点图
+% figure
+
+
